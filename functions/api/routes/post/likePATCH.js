@@ -16,7 +16,7 @@ module.exports = async (req, res) => {
     client = await db.connect(req);
 
     await postDB.like(client, post_id, state);
-    res.status(statusCode.OK).send(util.nsuccess(responseMessage.PATCH_LIKE_SUCCESS));
+    res.status(statusCode.OK).send(util.nsuccess(responseMessage.POST_PATCH_LIKE_SUCCESS));
   } catch (error) {
     functions.logger.error(`[ERROR] [${req.method.toUpperCase()}] ${req.originalUrl}`, `[CONTENT] ${error}`);
     console.log(error);
