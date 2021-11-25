@@ -1,4 +1,4 @@
 module.exports = {
     // postDB: require('./post'),
-    // commentDB: require('./comment'),
+    commentDB: require('./comment'),
   };

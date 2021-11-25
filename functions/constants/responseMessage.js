@@ -4,4 +4,8 @@ module.exports = {
   
     // 서버 내 오류
     INTERNAL_SERVER_ERROR: '서버 내 오류',
+
+    // 댓글
+    READ_ALL_COMMENT_SUCCESS: '댓글 리스트 조회 성공',
+    ADD_ONE_COMMENT_SUCCESS: '댓글 작성 성공',
 };
