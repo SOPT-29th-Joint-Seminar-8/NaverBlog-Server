@@ -82,4 +82,84 @@ const getAllComments = async(client, post_id) => {
     return convertSnakeToCamel.keysToCamel(result);
 }
 
-module.exports = { getAllComments };
+const addOriginComment = async(client, postId, userName, content) => {
+    // 마지막 groupId 가져오기
+    const { rows: groupId } = await client.query(
+        `
+        SELECT MAX(group_id)
+        FROM "comment"
+        `,
+    );
+
+    const maxGroupId = groupId[0].max;
+
+    // 새로운 그룹과 함께 원댓글 생성
+    let { rows } = await client.query(
+        `
+        INSERT INTO "comment"
+        (group_id, post_id, user_name, content)
+        VALUES
+        ($1, $2, $3, $4)
+        RETURNING comment_id, group_id, user_name, is_owner, content, heart_num, is_like, created_at
+        `,
+        [maxGroupId + 1, postId, userName, content],
+    );
+
+    rows[0].created_at = getParsedDate(rows[0].created_at)
+    rows = convertSnakeToCamel.keysToCamel(rows)
+
+    //전체 댓글 수 증가 및 가져오기
+    const { rows: num } = await client.query(
+        `
+        UPDATE "post" p
+        SET comment_num = comment_num + 1
+        WHERE post_id = $1
+        AND is_deleted = FALSE
+        RETURNING comment_num
+        `,
+        [postId]
+    );
+
+    let result; // 최종적으로 return하려는 객체
+    result = num[0]; // 전체 댓글 개수 넣어주기
+    result["newComment"] = rows[0]; // 새로 작성한 원댓글
+
+    return convertSnakeToCamel.keysToCamel(result);
+}
+
+const addReplyComment = async(client, postId, userName, content, groupId) => {
+    // 기존의 그룹에 새로운 답글 생성
+    let { rows } = await client.query(
+        `
+        INSERT INTO "comment"
+        (group_id, post_id, user_name, content)
+        VALUES
+        ($1, $2, $3, $4)
+        RETURNING comment_id, group_id, user_name, is_owner, content, heart_num, is_like, created_at
+        `,
+        [groupId, postId, userName, content],
+    );
+
+    rows[0].created_at = getParsedDate(rows[0].created_at)
+    rows = convertSnakeToCamel.keysToCamel(rows)
+
+    //전체 댓글 수 증가 및 가져오기
+    const { rows: num } = await client.query(
+        `
+        UPDATE "post" p
+        SET comment_num = comment_num + 1
+        WHERE post_id = $1
+        AND is_deleted = FALSE
+        RETURNING comment_num
+        `,
+        [postId]
+    );
+
+    let result; // 최종적으로 return하려는 객체
+    result = num[0]; // 전체 댓글 개수 넣어주기
+    result["newComment"] = rows[0]; // 새로 작성한 답글
+
+    return convertSnakeToCamel.keysToCamel(result);
+}
+
+module.exports = { getAllComments, addOriginComment, addReplyComment };
