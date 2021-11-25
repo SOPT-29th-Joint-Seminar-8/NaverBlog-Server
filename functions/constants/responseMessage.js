@@ -7,4 +7,5 @@ module.exports = {
 
     // 댓글
     READ_ALL_COMMENT_SUCCESS: '댓글 리스트 조회 성공',
+    ADD_ONE_COMMENT_SUCCESS: '댓글 작성 성공',
 };
