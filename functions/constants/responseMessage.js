@@ -11,4 +11,7 @@ module.exports = {
 
   // 메인 뷰
   READ_MAIN_SUCCESS: '메인뷰 조회 성공',
+
+  // 게시글
+  PATCH_LIKE_SUCCESS: '하트 날리기 - 게시글 성공',
 };
