@@ -52,6 +52,7 @@ const getAllComments = async(client, post_id) => {
         WHERE post_id = $1
         AND is_deleted = FALSE
         GROUP BY group_id
+        ORDER BY group_id
         `,
         [post_id]
     );
