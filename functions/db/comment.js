@@ -14,15 +14,25 @@ const getParsedDate = (date) => {
   return `${date.getFullYear()}. ${month}. ${day}. ${hour}:${minute}`;
 };
 
-const getAllComments = async (client, post_id) => {
-  //전체 댓글 수, 비밀 댓글 수 가져오기
-  const { rows: num } = await client.query(
-    `
-        SELECT DISTINCT comment_num, secret_comment_num
-        FROM "post" p JOIN "comment" c
-        ON p.post_id = c.post_id
+const getAllComments = async(client, post_id) => {
+    // 전체 댓글 수 가져오기
+    const { rows: commentNum } = await client.query(
+        `
+        SELECT count(*) AS comment_num
+        FROM "comment" c
+        WHERE c.post_id = $1
+        AND c.is_deleted = FALSE;
+        `,
+        [post_id]
+    );
+
+    // 비밀 댓글 수 가져오기
+    const { rows: secretCommentNum } = await client.query(
+        `
+        SELECT secret_comment_num
+        FROM "post" p
         WHERE p.post_id = $1
-        AND p.is_deleted = FALSE
+        AND p.is_deleted = FALSE;
         `,
     [post_id],
   );
@@ -57,9 +67,10 @@ const getAllComments = async (client, post_id) => {
     [post_id],
   );
 
-  let result; // 최종적으로 return하려는 객체
-  result = num[0]; // 댓글 개수 넣어주기
-  result['comments'] = []; // 댓글 리스트를 넣어주기 위한 comments 프로퍼티 생성
+    let result = {}; // 최종적으로 return하려는 객체
+    result = commentNum[0] // 전체 댓글 개수 넣어주기
+    result = {...result, secret_comment_num: secretCommentNum[0].secret_comment_num } // 비밀 댓글 개수 넣어주기
+    result["comments"] = []; // 댓글 리스트를 넣어주기 위한 comments 프로퍼티 생성
 
   // 위에서 생성한 comments 프로퍼티에 원댓글 먼저 넣어주기
   let j = 0;
@@ -110,14 +121,13 @@ const addOriginComment = async (client, postId, userName, content) => {
   rows[0].created_at = getParsedDate(rows[0].created_at);
   rows = convertSnakeToCamel.keysToCamel(rows);
 
-  //전체 댓글 수 증가 및 가져오기
-  const { rows: num } = await client.query(
-    `
-        UPDATE "post" p
-        SET comment_num = comment_num + 1
-        WHERE post_id = $1
-        AND is_deleted = FALSE
-        RETURNING comment_num
+    //증가된 전체 댓글 수 가져오기
+    const { rows: num } = await client.query(
+        `
+        SELECT count(*) AS comment_num
+        FROM "comment" c
+        WHERE c.post_id = $1
+        AND c.is_deleted = FALSE;
         `,
     [postId],
   );
@@ -145,14 +155,13 @@ const addReplyComment = async (client, postId, userName, content, groupId) => {
   rows[0].created_at = getParsedDate(rows[0].created_at);
   rows = convertSnakeToCamel.keysToCamel(rows);
 
-  //전체 댓글 수 증가 및 가져오기
-  const { rows: num } = await client.query(
-    `
-        UPDATE "post" p
-        SET comment_num = comment_num + 1
-        WHERE post_id = $1
-        AND is_deleted = FALSE
-        RETURNING comment_num
+    // 증가된 전체 댓글 수 가져오기
+    const { rows: num } = await client.query(
+        `
+        SELECT count(*) AS comment_num
+        FROM "comment" c
+        WHERE c.post_id = $1
+        AND c.is_deleted = FALSE;
         `,
     [postId],
   );
