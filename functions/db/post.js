@@ -45,4 +45,18 @@ const getMain = async (client) => {
   return result;
 };
 
-module.exports = { getMain };
+const like = async (client, postId, state) => {
+  if (state === 'true') state = false;
+  else state = true;
+
+  console.log(state);
+  await client.query(
+    `
+    UPDATE post
+    SET is_like = $1
+    WHERE post_id = $2;
+    `,
+    [state, postId],
+  );
+};
+module.exports = { getMain, like };
