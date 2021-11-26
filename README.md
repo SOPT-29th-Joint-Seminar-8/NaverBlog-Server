@@ -16,4 +16,4 @@
 <br>
 
 ## 🌻 ERD
-<img src="https://user-images.githubusercontent.com/78714820/143527956-29c9e843-52a7-45bd-b7aa-f81125da478d.png" width="700"/>
+<img src="https://user-images.githubusercontent.com/78714820/143540700-4173995f-02ad-419e-ae40-ce2eb883febb.png" width="650">
