@@ -23,12 +23,12 @@ const getMain = async (client) => {
   // 게시글 데이터 불러오기
   let { rows: posts } = await client.query(
     `
-        SELECT p.post_id, p.title, p.content, p.heart_num, p.comment_num,
+        SELECT p.post_id, p.title, p.content, p.heart_num,
                 p.secret_comment_num, p.is_like, p.created_at, count(c) as comment_num
         FROM post p
         LEFT JOIN comment c on p.post_id = c.post_id
         WHERE p.is_deleted = FALSE
-        GROUP BY p.post_id, p.title, p.content, p.heart_num, p.comment_num,
+        GROUP BY p.post_id, p.title, p.content, p.heart_num,
                 p.secret_comment_num, p.is_like, p.created_at
         ORDER BY p.created_at asc
         `,
